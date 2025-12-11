@@ -106,6 +106,7 @@ app.post('/req2', async (req, res) => {
 });
 
 // Req 3: 選擇區域 & 年份 -> 顯示次區域平均 SRB
+// Calculated AVG(SRB) and grouped by SubRegionName
 app.post('/req3', async (req, res) => {
     const { region, year } = req.body;
     try {
