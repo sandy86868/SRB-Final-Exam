@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SRB Exam Project</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <style>
+        body{ padding:20px; font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .box { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h3 { margin-top: 0; color: #555; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        select, input, button { padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background-color: #007bff; color: white; padding: 8px; text-align: left; }
+        td { border-bottom: 1px solid #ddd; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Sex Ratio at Birth (SRB) Dashboard</h1>
+    
+    <div class="box">
+        <h3>1. View Country SRB History</h3>
+        <label>Select a country:</label>
+        <select name="code" 
+                hx-get="/countries" 
+                hx-trigger="load" 
+                hx-target="this" 
+                hx-swap="innerHTML"
+                hx-on:change="htmx.ajax('GET', '/srb/'+this.value, '#res1')">
+            <option>Loading...</option>
+        </select>
+        <div id="res1"></div>
+    </div>
+
+    <div class="box">
+        <h3>4. Search Country (Keyword)</h3>
+        <input type="text" name="keyword" placeholder="Type country name (e.g., China)..." 
+               hx-post="/search" 
+               hx-trigger="keyup changed delay:500ms" 
+               hx-target="#res4">
+        <div id="res4"></div>
+    </div>
+
+    <div class="box">
+        <h3>5. Add Next Year Record</h3>
+        <form hx-post="/add-next-year" hx-target="#res5">
+            <label>Country:</label>
+            <select name="country_code" hx-get="/countries" hx-trigger="load"></select>
+            <br>
+            <label>New SRB Value:</label>
+            <input type="number" step="0.01" name="srb_value" placeholder="e.g. 105.5" required>
+            <button type="submit">Add Record</button>
+        </form>
+        <div id="res5" style="margin-top: 10px; font-weight: bold;"></div>
+    </div>
+</body>
+</html>
