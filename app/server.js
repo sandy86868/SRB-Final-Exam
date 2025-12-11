@@ -128,6 +128,7 @@ app.post('/req3', async (req, res) => {
 });
 
 // Req 4: 關鍵字搜尋 -> 顯示匹配國家最新 SRB
+// Used ILIKE for case-insensitive partial matching
 app.post('/req4', async (req, res) => {
     const { keyword } = req.body;
     try {
