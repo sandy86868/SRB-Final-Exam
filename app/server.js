@@ -177,6 +177,7 @@ app.post('/req6', async (req, res) => {
 });
 
 // Req 7: 範圍刪除 (Delete Range)
+// Used BETWEEN clause to delete records within specific year range
 app.post('/req7', async (req, res) => {
     const { country_code, start_year, end_year } = req.body;
     try {
