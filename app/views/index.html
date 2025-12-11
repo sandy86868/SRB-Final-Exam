@@ -134,4 +134,18 @@
             <h3>8. Top 10 Highest SRB Countries</h3>
             <form hx-post="/req8" hx-target="#res8">
                 <label>Select Year:</label>
-                <select name="year" hx-get="/
+                <select name="year" 
+                        hx-get="/api/years" 
+                        hx-trigger="load" 
+                        hx-target="this" 
+                        hx-swap="innerHTML" 
+                        required 
+                        style="border: 2px solid #28a745;">
+                    <option value="">Loading Years...</option>
+                </select>
+                <button type="submit" style="background: #28a745; margin-top: 10px;">
+                    Show Top 10
+                </button>
+            </form>
+            <div id="res8" class="result-box"></div>
+        </div>

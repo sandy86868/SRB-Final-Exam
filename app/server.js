@@ -179,9 +179,15 @@ app.post('/req7', async (req, res) => {
     } catch (e) { res.send('Error: ' + e.message); }
 });
 
-// Req 8: 自選功能 (顯示某年度 SRB 最高的前 10 個國家)
+// Req 8: 自選功能 (顯示某年度 SRB 最高的前 10 個國家) - 修正版
 app.post('/req8', async (req, res) => {
     const { year } = req.body;
+    console.log('Req8 received year:', year); // 這是除錯訊息，會顯示在終端機
+
+    if (!year) {
+        return res.send('<span style="color:red;">Please select a year first.</span>');
+    }
+
     try {
         const sql = `
             SELECT c.CountryName, a.SRB 
@@ -190,12 +196,25 @@ app.post('/req8', async (req, res) => {
             WHERE a.Year = $1
             ORDER BY a.SRB DESC
             LIMIT 10`;
-        const result = await pool.query(sql, [year]);
-        if(result.rows.length === 0) return res.send('No data.');
-        let html = `<ol>`;
-        result.rows.forEach(r => html += `<li>${r.countryname}: <b>${r.srb}</b></li>`);
+        
+        // 強制轉換年份為整數，確保 SQL 讀取正確
+        const result = await pool.query(sql, [parseInt(year)]);
+        
+        if(result.rows.length === 0) return res.send('No data found for this year.');
+        
+        let html = `<ol class="result-list">`;
+        result.rows.forEach((r, index) => {
+            // 使用 parseFloat 確保 SRB 顯示美觀
+            html += `<li style="padding: 5px; border-bottom: 1px solid #eee;">
+                        <strong>${index + 1}. ${r.countryname}</strong>: 
+                        <span style="color: #28a745; font-weight: bold;">${parseFloat(r.srb).toFixed(3)}</span>
+                     </li>`;
+        });
         res.send(html + '</ol>');
-    } catch (e) { res.send('Error: ' + e.message); }
+    } catch (e) { 
+        console.error('Req8 Error:', e);
+        res.send('Error: ' + e.message); 
+    }
 });
 
 app.listen(3000, () => console.log('Server running on port 3000'));
