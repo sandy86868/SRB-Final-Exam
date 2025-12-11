@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # 資料庫服務
+  db:
+    image: postgres:14-alpine
+    container_name: srb_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: srb_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # 資料持久化
+      - postgres_data:/var/lib/postgresql/data/
+      # 將 CSV 和 SQL 掛載進去，方便等一下手動執行匯入
+      - ./data1.csv:/data/data1.csv
+      - ./data2.csv:/data/data2.csv
+      - ./ETL.sql:/data/ETL.sql
+
+  # 網頁應用程式服務
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: srb_db
+      DB_PORT: 5432
+
+volumes:
+  postgres_data:
