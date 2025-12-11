@@ -87,6 +87,7 @@ app.get('/req1/srb/:code', async (req, res) => {
 });
 
 // Req 2: 選擇次區域 & 年份 -> 顯示該區國家 SRB (升序)
+// Joined Countries and AnnualSRB tables to filter by SubRegion
 app.post('/req2', async (req, res) => {
     const { subregion, year } = req.body;
     try {
