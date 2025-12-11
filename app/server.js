@@ -75,6 +75,7 @@ app.get('/api/years/:countryCode', async (req, res) => {
 // --- 核心功能路由 (Requirements) ---
 
 // Req 1: 選擇國家 -> 顯示歷年 SRB (降序)
+// Implemented sorting by year descending as per requirements
 app.get('/req1/srb/:code', async (req, res) => {
     try {
         const result = await pool.query('SELECT Year, SRB FROM AnnualSRB WHERE CountryCode = $1 ORDER BY Year DESC', [req.params.code]);
