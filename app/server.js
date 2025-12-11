@@ -186,7 +186,8 @@ app.post('/req7', async (req, res) => {
     } catch (e) { res.send('Error: ' + e.message); }
 });
 
-// Req 8: 自選功能 (顯示某年度 SRB 最高的前 10 個國家) - 修正版
+// Req 8: 自選功能 (Top 10)
+// Selected top 10 countries with highest SRB for the given year
 app.post('/req8', async (req, res) => {
     const { year } = req.body;
     console.log('Req8 received year:', year); // 這是除錯訊息，會顯示在終端機
