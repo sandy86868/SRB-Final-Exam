@@ -1,10 +1,10 @@
 version: '3.8'
 
 services:
-  # 資料庫服務
+  # 資料庫服務 (Database Tier)
   db:
     image: postgres:14-alpine
-    # 修改 1: 加上學號避免名稱衝突
+    # 使用學號後碼避免名稱衝突
     container_name: srb_db_m11405105
     restart: always
     environment:
@@ -12,24 +12,27 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: srb_db
     ports:
-      # 修改 2: 外部 Port 改為 15105 (學號後五碼) -> 對應內部 5432
+      # 外部 Port: 15105 (學號相關) -> 內部 Port: 5432
       - "15105:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+      # 掛載檔案以便手動匯入
       - ./data1.csv:/data/data1.csv
       - ./data2.csv:/data/data2.csv
       - ./ETL.sql:/data/ETL.sql
 
-  # 網頁應用程式服務
+  # 網頁應用程式服務 (Logic/Web Tier)
   app:
     build: .
+    # 使用學號後碼避免名稱衝突
+    container_name: srb_app_m11405105
     ports:
-      # 修改 3: 外部 Port 改為 13105 (學號後五碼變體) -> 對應內部 3000
+      # 外部 Port: 13105 (學號相關) -> 內部 Port: 3000
       - "13105:3000"
     depends_on:
       - db
     environment:
-      # 注意：這裡是 Docker 內部溝通，還是用 service name "db" 和內部 port "5432"，不用改
+      # Docker 內部網路溝通設定 (Host 必須對應 db service name)
       DB_HOST: db
       DB_USER: user
       DB_PASSWORD: password
