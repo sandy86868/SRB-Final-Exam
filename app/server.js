@@ -166,7 +166,8 @@ app.post('/req5', async (req, res) => {
     } catch (e) { res.send('Error (maybe already exists): ' + e.message); }
 });
 
-// Req 6: 更新資料 (Update)
+//// Req 6: 更新資料 (Update)
+// Implemented UPDATE statement with safe parameter binding
 app.post('/req6', async (req, res) => {
     const { country_code, year, new_srb } = req.body;
     try {
