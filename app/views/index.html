@@ -9,7 +9,7 @@
         h1 { text-align: center; color: #333; margin-bottom: 30px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .card h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.1em; }
+        h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; font-size: 1.1em; }
         select, input, button { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background: #0056b3; }
@@ -28,7 +28,11 @@
         <div class="card">
             <h3>1. Country SRB History</h3>
             <label>Select Country:</label>
-            <select name="code" hx-get="/api/countries" hx-trigger="load" hx-target="this" 
+            <select name="code" 
+                    hx-get="/api/countries" 
+                    hx-trigger="load" 
+                    hx-target="this" 
+                    hx-swap="innerHTML"
                     hx-on:change="htmx.ajax('GET', '/req1/srb/'+this.value, '#res1')">
                 <option>Loading...</option>
             </select>
@@ -38,8 +42,12 @@
         <div class="card">
             <h3>2. Sub-Region Analysis</h3>
             <form hx-post="/req2" hx-target="#res2">
-                <select name="subregion" hx-get="/api/subregions" hx-trigger="load" required></select>
-                <select name="year" hx-get="/api/years" hx-trigger="load" required></select>
+                <select name="subregion" hx-get="/api/subregions" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Sub-Regions...</option>
+                </select>
+                <select name="year" hx-get="/api/years" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Years...</option>
+                </select>
                 <button>Show Countries</button>
             </form>
             <div id="res2" class="result-box"></div>
@@ -48,8 +56,12 @@
         <div class="card">
             <h3>3. Regional Overview</h3>
             <form hx-post="/req3" hx-target="#res3">
-                <select name="region" hx-get="/api/regions" hx-trigger="load" required></select>
-                <select name="year" hx-get="/api/years" hx-trigger="load" required></select>
+                <select name="region" hx-get="/api/regions" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Regions...</option>
+                </select>
+                <select name="year" hx-get="/api/years" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Years...</option>
+                </select>
                 <button>Show Avg SRB</button>
             </form>
             <div id="res3" class="result-box"></div>
@@ -66,7 +78,9 @@
             <h3>5. Add Next Year Record</h3>
             <form hx-post="/req5" hx-target="#res5">
                 <label>Select Country to Extend:</label>
-                <select name="country_code" hx-get="/api/countries" hx-trigger="load" required></select>
+                <select name="country_code" hx-get="/api/countries" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Countries...</option>
+                </select>
                 <button>Add Next Year Entry (Auto-fill)</button>
             </form>
             <div id="res5" class="result-box"></div>
@@ -75,28 +89,40 @@
         <div class="card">
             <h3>6. Update Record</h3>
             <form hx-post="/req6" hx-target="#res6">
-                <select name="country_code" hx-get="/api/countries" hx-trigger="load" 
-                        hx-target="#req6-year" hx-swap="outerHTML" required>
+                <select name="country_code" 
+                        hx-get="/api/countries" 
+                        hx-trigger="load" 
+                        hx-target="this" 
+                        hx-swap="innerHTML" 
+                        required
+                        onchange="loadYears(this.value)">
                     <option>Select Country First...</option>
                 </select>
-                <select id="req6-year" name="year">
+                
+                <select id="req6-year" name="year" required>
                     <option value="">Select Year...</option>
                 </select>
+                
                 <input type="number" step="0.001" name="new_srb" placeholder="New SRB Value" required>
                 <button>Update SRB</button>
             </form>
             <div id="res6" class="result-box"></div>
+            
             <script>
-                document.querySelector('[name="country_code"]').addEventListener('change', function(){
-                    if(this.value) htmx.ajax('GET', '/api/years/'+this.value, '#req6-year');
-                });
+                function loadYears(countryCode) {
+                    if(countryCode) {
+                        htmx.ajax('GET', '/api/years/' + countryCode, '#req6-year');
+                    }
+                }
             </script>
         </div>
 
         <div class="card">
             <h3>7. Delete Range</h3>
             <form hx-post="/req7" hx-target="#res7">
-                <select name="country_code" hx-get="/api/countries" hx-trigger="load" required></select>
+                <select name="country_code" hx-get="/api/countries" hx-trigger="load" hx-target="this" hx-swap="innerHTML" required>
+                    <option>Loading Countries...</option>
+                </select>
                 <input type="number" name="start_year" placeholder="Start Year (e.g. 2000)" required>
                 <input type="number" name="end_year" placeholder="End Year (e.g. 2005)" required>
                 <button style="background: #dc3545;">Delete Records</button>
@@ -108,13 +134,4 @@
             <h3>8. Top 10 Highest SRB Countries</h3>
             <form hx-post="/req8" hx-target="#res8">
                 <label>Select Year:</label>
-                <select name="year" hx-get="/api/years" hx-trigger="load" required></select>
-                <button style="background: #28a745;">Show Top 10</button>
-            </form>
-            <div id="res8" class="result-box"></div>
-        </div>
-
-    </div>
-
-</body>
-</html>
+                <select name="year" hx-get="/
