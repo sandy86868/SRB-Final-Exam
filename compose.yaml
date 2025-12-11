@@ -4,18 +4,18 @@ services:
   # 資料庫服務
   db:
     image: postgres:14-alpine
-    container_name: srb_db
+    # 修改 1: 加上學號避免名稱衝突
+    container_name: srb_db_m11405105
     restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: srb_db
     ports:
-      - "5432:5432"
+      # 修改 2: 外部 Port 改為 15105 (學號後五碼) -> 對應內部 5432
+      - "15105:5432"
     volumes:
-      # 資料持久化
       - postgres_data:/var/lib/postgresql/data/
-      # 將 CSV 和 SQL 掛載進去，方便等一下手動執行匯入
       - ./data1.csv:/data/data1.csv
       - ./data2.csv:/data/data2.csv
       - ./ETL.sql:/data/ETL.sql
@@ -24,10 +24,12 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      # 修改 3: 外部 Port 改為 13105 (學號後五碼變體) -> 對應內部 3000
+      - "13105:3000"
     depends_on:
       - db
     environment:
+      # 注意：這裡是 Docker 內部溝通，還是用 service name "db" 和內部 port "5432"，不用改
       DB_HOST: db
       DB_USER: user
       DB_PASSWORD: password
