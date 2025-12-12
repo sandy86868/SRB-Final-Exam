@@ -147,20 +147,28 @@ app.post('/req4', async (req, res) => {
     } catch (e) { res.send('Error: ' + e.message); }
 });
 
-// Req 5: 新增下一年度資料 (Insert)
-// Automatically determined the next available year for insertion
+// Req 5: 新增下一年度資料 (Insert) - 修正版 (支援無資料國家)
 app.post('/req5', async (req, res) => {
     const { country_code } = req.body;
     try {
         // 1. 找出該國最新資料
         const maxRes = await pool.query('SELECT Year, SRB FROM AnnualSRB WHERE CountryCode = $1 ORDER BY Year DESC LIMIT 1', [country_code]);
-        if(maxRes.rows.length === 0) return res.send('No existing data for this country to base on.');
         
-        const lastYear = maxRes.rows[0].year;
-        const lastSRB = maxRes.rows[0].srb; // 預設使用去年的值，或可讓使用者輸入
-        const nextYear = lastYear + 1;
+        let nextYear, lastSRB;
 
-        // 2. 插入新資料 (這裡為了簡化，直接複製去年的 SRB，實務上可讓使用者輸入)
+        if(maxRes.rows.length === 0) {
+            // 情況 A: 該國完全沒有歷史資料 (例如 Åland Islands)
+            // 我們預設從 2024 年開始，SRB 預設為 105.0
+            nextYear = 2024;
+            lastSRB = 105.0;
+            console.log(`No history for ${country_code}. Starting fresh at ${nextYear}.`);
+        } else {
+            // 情況 B: 已經有資料，計算下一年
+            nextYear = maxRes.rows[0].year + 1;
+            lastSRB = maxRes.rows[0].srb;
+        }
+
+        // 2. 插入新資料
         await pool.query('INSERT INTO AnnualSRB (CountryCode, Year, SRB) VALUES ($1, $2, $3)', [country_code, nextYear, lastSRB]);
         res.send(`✅ Added Record: Year ${nextYear} (SRB: ${lastSRB})`);
     } catch (e) { res.send('Error (maybe already exists): ' + e.message); }
