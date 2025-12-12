@@ -21,12 +21,21 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'views', 'index.htm
 
 // --- 共用 API: 下拉選單資料來源 ---
 
-// 取得所有國家
+// 取得所有國家 (修正排序)
 app.get('/api/countries', async (req, res) => {
     try {
-        const result = await pool.query('SELECT CountryCode, CountryName FROM Countries ORDER BY CountryName');
+        // 原本: ORDER BY CountryName
+        // 修改: ORDER BY CountryName COLLATE "C" (或其他適合的 Collation)
+        // 或者更簡單的，我們用 Node.js 來排序，這樣最穩
+        const result = await pool.query('SELECT CountryCode, CountryName FROM Countries');
+        
+        // 在 JavaScript 端進行排序 (支援本地化字串比較)
+        const sortedRows = result.rows.sort((a, b) => 
+            a.countryname.localeCompare(b.countryname, 'en', { sensitivity: 'base' })
+        );
+
         let html = '<option value="">Select Country</option>';
-        result.rows.forEach(r => html += `<option value="${r.countrycode}">${r.countryname}</option>`);
+        sortedRows.forEach(r => html += `<option value="${r.countrycode}">${r.countryname}</option>`);
         res.send(html);
     } catch (e) { res.send('<option>Error</option>'); }
 });
